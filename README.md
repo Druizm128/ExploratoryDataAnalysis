@@ -13,3 +13,35 @@ The project uses exploratory data analysis techniques (EDA) to explore the 2016 
 * <b>CONTRIBUTOR_FORMAT.txt:</b> Contains a dictionary of all the fields in the dataset
 * <b>california_cities.csv:</b> Contains the coordinates of each of the major cities in the State of California.
 * <b>zipcodes_2013.txt:</b> Coordinates for each of the zip codes in the USA.
+
+## References:
+
+* Loading Data and Basic Formatting in R:
+http://flowingdata.com/2015/02/18/loading-data-and-basic-formatting-in-r/
+
+* RStudio Cheat Sheets:
+https://www.rstudio.com/resources/cheatsheets/
+
+* How to draw good looking maps in R:
+https://uchicagoconsulting.wordpress.com/tag/r-ggplot2-maps-visualization/
+
+* Making Maps with R:
+http://eriqande.github.io/rep-res-web/lectures/making-maps-with-R.html
+
+* Predicting Gender Using Historical Data:
+https://cran.rstudio.com/web/packages/gender/vignettes/predicting-gender.html
+
+* Regular Expression in R:
+http://stat545.com/block022_regular-expression.html
+
+* Joining 2 R data sets with different column names:
+https://www.r-bloggers.com/joining-2-r-data-sets-with-different-column-names/
+
+* Extract Month and Year From Date in R:
+https://stackoverflow.com/questions/37704212/extract-month-and-year-from-date-in-r
+
+* Date Values:
+http://www.statmethods.net/input/dates.html
+
+* Introduction to ggthemes:
+https://cran.r-project.org/web/packages/ggthemes/vignettes/ggthemes.html
