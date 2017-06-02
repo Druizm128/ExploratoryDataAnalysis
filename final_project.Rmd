@@ -1,0 +1,860 @@
+---
+title: "2016 USA Presidential Campaign Finance in the State of California"
+author: "Dante Ruiz"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
+
+# Importing libraries
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(tidyr)
+library(maps)
+library(gridExtra)
+```
+
+## Introduction:
+This project uses exploratory data techniques to understand the behaviour of American contributors to the 2016 Presidential Campaign in the State of California. The purpose of the project is to use different tools in R to aquire, clean, explore and analyze a dataset, and to present three data visualizations that can display insights about the information.
+
+The structure of this document is the following:
+
+1. Objectives
+2. Description of the dataset
+3. Data wrangling
+4. Data exploration
+5. Final Plots and Summary
+6. Reflections
+
+## Objectives:
+
+* To find out how much money the contributors are willing to give to a Presidential Campaign.
+* To understand the differences in behaviour of contributors by gender and ethnicity.
+* To understand how presidential candidates were funded by contributors.
+
+## Description of the dataset:
+
+The dataset contains a universe of all individual contributions reported on Form 3P Line 17A, refunds to individuals reported on Form 3P Line 28A and transfers from authorized committees reported on Form 3P Line 18 for the 2016 Presidential Campaign in the State of California.
+
+The data can be downloaded from the following website http://fec.gov/disclosurep/pnational.do . Furthermore, the dataset for the State of California contains 19 fields and 1,304,346 entries.
+
+The fields comprised in the dataset are:
+
+* COMMITTEE ID: A 9-character alpha-numeric code assigned to a committee by the Federal Election Commission.
+* CANDIDATE ID: A 9-character alpha-numeric code assigned to a candidate by the Federal Election Commission. 
+* CANDIDATE NAME: Reported candidate name.
+* CONTRIBUTOR NAME: Reported name of the contributor.
+* CONTRIBUTOR CITY: Reported city of the contributor.
+* CONTRIBUTOR STATE: Reported state of the contributor.
+* CONTRIBUTOR ZIP CODE: Reported zip code of the contributor.
+* CONTRIBUTOR EMPLOYER: Reported employer of the contributor.
+* CONTRIBUTOR OCCUPATION: Reported occupation of the contributor.
+* CONTRIBUTION RECEIPT AMOUNT: Reported contribution amount.
+* CONTRIBUTION RECEIPT DATE: Reported contribution receipt date.  The date format is DD-MMM-YYYY.
+* RECEIPT DESCRIPTION: Additional information reported by the committee about a specific contribution. 
+* MEMO CODE: 'X' indicates the reporting committee has provided additional text to describe a specific contribution.  See the MEMO TEXT. 
+* MEMO TEXT: Additional information reported by the committee about a specific contribution. 
+* FORM TYPE: Indicates what schedule and line number the reporting committee reported a specific transaction.
+* FILE NUMBER: A unique number assigned to a report and all its associated transactions.
+* TRANSACTION ID: A unique identifier permanently associated with each itemization or transaction appearing in an FEC electronic file.
+* ELECTION TYPE / PRIMARY-GENERAL INDICATOR: This code indicates the election for which the contribution was made. EYYYY (election plus election year)
+
+```{r, message=FALSE, warning=FALSE}
+# Importing California dataset
+fincon <- read.csv('P00000001-CA.csv', skip=1, header = FALSE)
+# Printing dimensions of dataset
+dim(fincon)
+```
+
+The dataset contains 19 columns and 1,304,346 rows.
+
+## Data wrangling:
+
+This section presents a description of how the dataset is cleaned and new variables are added to fulfill the objectives of the project.
+
+#### Data cleaning:
+
+After importing the data that came in a csv format, the first step to clean the data is to rename the columns as needed. The second step is to remove the missing values. The third step is to change the type of the fields as needed. The fourth step is to subset the dataset to the contributions of interest.
+
+**a) Renaming columns and dropping empty columns**
+
+The first step in the process is to rename the columns of the dataset. Later, the last empty columns will be dropped from the dataset.
+
+```{r, message=FALSE, warning=FALSE}
+# Setting the names of the columns
+fieldNames <- c('cmte_id','cand_id','cand_nm','contbr_nm',
+                'contbr_city','contbr_st','contbr_zip',
+                'contbr_employer','contbr_occupation','contb_receipt_amt',
+                'contb_receipt_dt','receipt_desc','memo_cd',
+                'memo_text','form_tp','file_num',
+                'tran_id','election_tp','NAcol')
+colnames(fincon) <- fieldNames
+# Eliminating empty column
+fincon <- fincon[,1:18]
+```
+
+Exploring data types:
+
+A quick display to the structure of the data shows the variables name and type. With the exception of contb_receipt_amt, R interpreted the fields as factors. This fact should be kept in mind as further type transformations will have to be required.
+
+```{r, message=FALSE, warning=FALSE}
+# Print structure of the dataset
+str(fincon)
+```
+
+**b) Searching for missing values (NAs)**
+
+An analysis to find out missing values (NAs) in each columns was run indicating as a result that no NAs were found in the dataset, therefore the dataset is ready to be used for exploratory analysis.
+
+```{r, message=FALSE, warning=FALSE}
+# Print NAs per field
+sapply(fincon, function(x) sum(is.na(x)))
+```
+
+**c) Change data types**
+
+As previously shown most of the fields were imported as factors, so the next step is to change the type of the fields as required:
+
+* CONTRIBUTION RECEIPT DATE as date type with the format "dd-mmm-yy".
+* CONTRIBUTION RECEIPT AMOUNT as numeric type.
+* OTHER fields as character fields.
+
+In general all types were change to character, except the dates that were formatted as this, and the amounts contributed as numeric type.
+
+```{r, message=FALSE, warning=FALSE}
+# Changing data types
+
+#cand_nm
+fincon$cand_nm <- as.character(fincon$cand_nm)
+#contbr_nm
+fincon$contbr_nm <- as.character(fincon$contbr_nm)
+#contbr_city
+fincon$contbr_city <- as.character(fincon$contbr_city)
+#contbr_st
+fincon$contbr_st <- as.character(fincon$contbr_st)
+#contbr_zip
+fincon$contbr_zip <- as.character(fincon$contbr_zip)
+#contbr_employer
+fincon$contbr_employer <- as.character(fincon$contbr_employer)
+#contbr_occupation
+fincon$contbr_occupation <- as.character(fincon$contbr_occupation)
+#contb_receipt_amt
+fincon$contb_receipt_amt <- as.numeric(fincon$contb_receipt_amt)
+#contb_receipt_dt
+fincon$contb_receipt_dt <- as.Date(fincon$contb_receipt_dt, "%d-%b-%y")
+#form_tp
+fincon$form_tp <- as.character(fincon$form_tp)
+#election_tp
+fincon$election_tp <- as.character(fincon$election_tp)
+```
+
+A statistical summary at the variables shows that the CONTRIBUTION RECEIPT AMOUNT (contb_receipt_am) takes negative values and very extreme positive values in comparison to the median.
+
+```{r, message=FALSE, warning=FALSE}
+### Summarizing all variables
+summary(fincon)
+```
+
+
+**d) Subsetting dataframe**
+
+For this project the variable of interest is the individual contributions for the Presidential Campaign that are capped to 2,700 dollars (See http://www.fec.gov/pages/brochures/citizens.shtml#how_much). In this sense, the "CONTRIBUTION RECEIPT AMOUNT" field is filtered to those values between 0 and 2,700. Also contributions for 2020 elections were removed and also those contributions that were not possible to associate to an election period.
+
+
+```{r, message=FALSE, warning=FALSE}
+#Subsetting dataframe
+
+fincon <- tbl_df(fincon)
+fincon <- fincon %>%
+  select(cand_nm, contbr_nm, contbr_city, contbr_st, contbr_zip,contbr_employer, contbr_occupation, contb_receipt_amt, contb_receipt_dt, form_tp, election_tp) %>%
+  filter(contb_receipt_amt > 0, contb_receipt_amt <= 2700, election_tp != "P2020", election_tp != "")
+
+```
+
+
+#### Adding new variables:
+
+In order to achieve the objectives of this project, four additional variables have to be created such as:
+
+1. political party
+2. ethnicity
+3. gender
+4. geographical coordinates
+
+**1) Political party**
+
+The political party field can be created by classifying the candidate names into Republicans,  Democrats, Green, Libertarian and Independent parties.
+
+```{r, message=FALSE, warning=FALSE}
+# Printing unique presidential candidates
+unique(fincon$cand_nm)
+```
+
+In this sense the dataset contains 25 unique candidates that were classified as follows.
+
+Republican:
+* Bush, Jeb
+* Carson, Benjamin S.
+* Christie, Christopher J.
+* Cruz, Rafael Edward 'Ted'
+* Fiorina, Carly
+* Gilmore, James S III
+* Graham, Lindsey O.
+* Huckabee, Mike
+* Jindal, Bobby
+* Kasich, John R.
+* Pataki, George E.
+* Paul, Rand
+* Perry, James R. (Rick) 
+* Rubio, Marco
+* Santorum, Richard J.
+* Trump, Donald J.
+* Walker, Scott
+
+Democrats:
+* Clinton, Hillary Rodham
+* Lessig, Lawrence
+* O'Malley, Martin Joseph
+* Sanders, Bernard
+* Webb, James Henry Jr.
+
+Others:
+* Stein, Jill (Green Party)
+* McMullin, Evan (Independent)
+* Johnson, Gary (Libertarian Party)
+
+
+```{r, message=FALSE, warning=FALSE}
+# CREATING POLITICAL PARTY VARIABLE
+
+
+# Assigning candidates to a political party
+democrats <- c("Clinton, Hillary Rodham","Lessig, Lawrence",
+               "O'Malley, Martin Joseph","Sanders, Bernard",
+               "Webb, James Henry Jr.")
+
+green <- c("Stein, Jill")
+
+libertarian <- c("Johnson, Gary")
+
+independent <- c("McMullin, Evan")
+
+# Classifying political parties
+fincon$politicalParty <- ifelse(fincon$cand_nm %in% democrats, 'Democrats',
+                         ifelse(fincon$cand_nm %in% green,'Green', 
+                         ifelse(fincon$cand_nm %in% libertarian,'Libertarian',
+                         ifelse(fincon$cand_nm %in% independent,'Independent','Republican'))))
+
+# Changing the type of the variable to odered factors
+fincon$politicalParty <- factor(fincon$politicalParty, 
+                                levels = c("Democrats","Republican","Green","Libertarian","Independent"), 
+                                ordered = TRUE)
+
+# Setting colors per political party
+politicalPartiesColors <- c("#153670", # Democrats (Blue)
+                            "#D01920", # Republican (Red)
+                            "#F9D334", # Green (Green)
+                            "#17AA5C", # Libertarian (Gold)
+                            "#9655A1") # Independent (Purple)
+```
+
+As expected most of the contributions in the state of California were for the Democrat (84%) and Republican (15%) candidates. The rest of the contributions to the Green and Libertarian parties and to the Independent candidate represent 1%. 
+
+```{r, message=FALSE, warning=FALSE}
+# Counts of contributors by political parties
+print("Contributors by political party")
+table(fincon$politicalParty)
+# Proportion of contributors by political parties
+print("Porportion of contributors by political party")
+table(fincon$politicalParty )/ length(fincon$politicalParty)
+```
+
+**2) Ethnicity**
+
+The ethnicity of each contributor was derived using a Bayesian Prediction of Racial Category using the contributor surname and geolocation (See https://github.com/kosukeimai/wru). The R library used for this purpose is "wru" (See https://cran.r-project.org/web/packages/wru/wru.pdf). The code retrieves information from the US CENSUS to predict the following ethnicities in the US: white, black, hispanic and asian. It is worth to point out that the contributor name was split into name and surname to be able to compute the probabilities.
+
+```{r, message=FALSE, warning=FALSE}
+# CREATING ETHNICITY VARIABLE
+
+# Separating contributor name into first and last name.
+fincon <- separate(data = fincon, 
+                   col = contbr_nm, 
+                   into = c("cont_last_name", "cont_first_name"), 
+                   sep = ",")
+
+# Cleaning first name
+clean_first_name <- function(firstName){
+  firstName <- trimws(firstName)
+  if (grepl("\\s",firstName) == TRUE){
+    index <- regexpr("\\s",firstName)
+    first_name <- substr(firstName,0,index)
+    return(trimws(first_name))
+  } else if(grepl("\\s",firstName) == FALSE) {
+    first_name <- firstName
+  }  
+}
+
+cleanContFirstName <- unlist(lapply(fincon$cont_first_name, clean_first_name))
+fincon <- cbind(fincon,cleanContFirstName)
+
+# Predicting ethnicity using last name.
+library(wru)
+fincon$surname <- fincon$cont_last_name
+
+fincon <- predict_race(fincon, 
+          surname.only = TRUE, 
+          census.key = "adff8bef4c266b91a14c290e2cf3cde81a9f8535")
+
+# If probability is greater than 0.6 assign ethnicity group, if not assign not determined.
+fincon$ethnicity <- ifelse(fincon$pred.whi >= .6,"white",
+                    ifelse(fincon$pred.bla >= .6,"black",
+                    ifelse(fincon$pred.his >= .6,"hispanic",
+                    ifelse(fincon$pred.asi >= .6,"asian",
+                    "not_determined"))))
+```
+
+The new ethnicity field classified most of the contributors in the dataset as white (81%). In a smaller proportion hispanic (7%), asian (4%) and black (0.4%) contributors were classified. It is worth to point out that those contributors with probabilities less than 0.6 in any ethnicity were classified as "not determined" (6.7%).
+
+```{r, message=FALSE, warning=FALSE}
+# Counts of contributors by ethnicity group
+print("Contributors by ethnicity group")
+table(fincon$ethnicity)
+
+# Proportion of contributors by ethnicity group
+print("Porportion of contributors by ethnicity group")
+table(fincon$ethnicity) / length(fincon$ethnicity)
+```
+
+**3) Gender**
+
+The gender variable was created by predicting gender from first name with information of the U.S. Social Security Administration. The library used for this purpose is "gender" (See https://github.com/ropensci/gender and https://cran.r-project.org/web/packages/gender/index.html)
+
+```{r, message=FALSE, warning=FALSE}
+# CREATING GENDER VARIABLE
+
+library(gender)
+
+fincon$cleanContFirstName <- as.character(fincon$cleanContFirstName)
+
+# Predicting gender
+gender_predictions <- gender(fincon$cleanContFirstName,
+                             years = c(1932,2012), 
+                             method = "ssa",
+                             countries = "United States")
+
+gender_predictions <- tbl_df(gender_predictions)
+
+gender_predictions <- gender_predictions %>%
+  select(name,gender)
+
+gender_predictions <- distinct(gender_predictions, name, .keep_all = TRUE)
+
+fincon <- left_join(fincon,gender_predictions, by=c("cleanContFirstName"="name"))
+
+fincon$gender[is.na(fincon$gender)] <- "not determined"
+
+```
+
+The contributors gender was classified as mostly female (52%), male (45%) and "not determined" (4%).
+
+```{r, message=FALSE, warning=FALSE}
+# Counts of contributors by gender group
+print("Contributors by gender group")
+table(fincon$gender)
+
+# Proportion of contributors by gender group
+print("Porportion of contributors by gender group")
+table(fincon$gender) / length(fincon$gender)
+```
+
+**4) Geographical coordinates**
+
+To get the geographical coordinates (latitude and longitud), the zip code of the contributors was merged with the latitudes and coordinates provided by the United States Census Bureau (See https://www.census.gov/geo/maps-data/data/gazetteer.html and https://gist.github.com/erichurst/7882666).
+
+It is worth to point out that the zip code provided in the dataset was cleaned to five numeric characters.
+
+```{r message=FALSE, warning=FALSE}
+# CREATING COORDINATES
+usZipCoord <- read.table("2016_Gaz_zcta_national.txt", 
+                         sep = "\t",  
+                         header = TRUE)
+# Cleaning zip codes
+fincon$contbr_zip_clean <- substr(fincon$contbr_zip, 1, 5)
+
+# Importing zip code coordinates
+usZipCoord <- read.table("zipcodes_2013.txt", 
+                         sep = ",", 
+                         header = TRUE, 
+                         colClasses = c('character','numeric','numeric'))
+
+usZipCoord <- tbl_df(usZipCoord)
+
+# Merging coordinates to zip codes in contributors table
+geo_cont <- inner_join(fincon,usZipCoord,by=c('contbr_zip_clean'='ZIP'))
+```
+
+Once the political party, ethnicity, gender and geographical coordinates were created, the dataset is ready to be used for exploratory data analysis.
+
+## Exploratory data analysis:
+
+This section explores the dataset variables using univariate and bivariate visualizations to identify patterns in the data that may be useful to produce insights from the data. The results of this analysis will be used to create in the next section final visualizations.
+
+**Distribution of individual contributions**
+
+```{r, echo= FALSE, message=FALSE, warning=FALSE}
+# DISTRIBUTION OF CONTRIBUTIONS
+
+g1 <- ggplot(aes(x=contb_receipt_amt), data = fincon) + 
+            geom_histogram(binwidth = 10, alpha = 0.8) +
+            ggtitle("Distribution of individual contributions") +
+            xlab("Dollars") +
+            ylab("Count")
+
+
+g2 <- ggplot(aes(x=contb_receipt_amt), data = fincon) + 
+            geom_histogram(binwidth = 10, alpha = 0.8) +
+            ggtitle("Distribution of individual contributions between 0 and 300 dollars") +
+            xlab("Dollars") +
+            ylab("Count") +
+            scale_x_continuous(limits = c(0,300), breaks = seq(0,300,10))
+
+grid.arrange(g1,g2, nrow = 2)
+```
+
+In the first graph it can be seen that the individual contributions to the Presidential Campaign do not show a normal distribution behaviour, also that the distribution is skewed to the left. 
+
+In the second graph, a zoom was made to the contributions between 0 and 300 dollars, revealing that most of the contribution transactions to the campaign range between 5 and 55 dollars per contributor. Just to give some context to those amounts consider that the minimum salary in the State of California is $10/hour.
+
+**Total contributions by political party**
+
+```{r, echo= FALSE, message=FALSE, warning=FALSE}
+# CONTRIBUTIONS BY CANDIDATE
+contributions_by_candidates <- fincon %>%
+                                group_by(cand_nm, politicalParty) %>%
+                                summarise(total_cont = sum(contb_receipt_amt)) %>%
+                                arrange(desc(total_cont))
+
+# CONTRIBUTIONS PLOT
+ggplot(aes(x=politicalParty, y=total_cont/1000000, 
+           fill = politicalParty), 
+           data = contributions_by_candidates) + 
+      geom_bar(stat = 'identity') +
+      ggtitle("Total contributions by party") +
+      xlab("") +
+      ylab("Millions of dollars") +
+      scale_y_continuous(breaks = seq(0,120,10)) + 
+      labs(fill='Political party') +
+      scale_fill_manual(values=politicalPartiesColors)
+```
+
+The Democrat Party raised approximately 115 million dollars compared to the Republican Party with approximately 37 million dollars. In other words, Democrats raised 3.10 times more money than Republicans. 
+
+The smaller parties raised around 1 million dollars each one.
+
+**Total contributions by candidate and political party**
+
+```{r, echo= FALSE, message=FALSE, warning=FALSE}
+# CONTRIBUTIONS BY CANDIDATE PLOT
+ggplot(aes(x=reorder(cand_nm,total_cont/1000000), 
+           y=total_cont/1000000, 
+           fill = politicalParty), 
+           data = contributions_by_candidates) + 
+  geom_bar(stat = 'identity') + 
+  coord_flip() +
+  ggtitle("Total contributions by candidate") +
+  xlab("") +
+  ylab("Millions of dollars") +
+  labs(fill='Political party') +
+  scale_fill_manual(values=politicalPartiesColors)
+```
+
+The total individual contributions to the Democrats were to support Hillary Clinton. Also, it is worth to point out that in the State of California Bernard Sanders raised more money than the current President Donald Trump.
+
+The Republican total individual contributions were splitted between Donald Trump, Marco Rubio and Ted Cruz.
+
+**Interquartile range of contributions by political party**
+
+```{r, echo= FALSE, message=FALSE, warning=FALSE}
+b1 <- ggplot(aes(x=politicalParty, y = contb_receipt_amt, fill = politicalParty), 
+             data=fincon) + 
+      geom_boxplot() +
+      ggtitle("Distribution of  individual contributions by political party") +
+      xlab("") +
+      ylab("Dollars") +
+      labs(fill='Political party') +
+      scale_fill_manual(values=c("#3399ff","#ff0000", "#009900","#ffcc00","#cc00ff"))
+
+b2 <- ggplot(aes(x=politicalParty, y = contb_receipt_amt, fill = politicalParty), 
+             data=fincon) + 
+      geom_boxplot() +
+      ggtitle("Zoom to the interquartile range of individual contributions by political party") +
+      xlab("") +
+      ylab("Dollars") +
+      scale_y_continuous(limits = c(0,120), breaks = seq(0,120,10)) +
+      labs(fill='Political party') +
+      scale_fill_manual(values=politicalPartiesColors)
+
+grid.arrange(b1,b2, nrow = 2)
+```
+
+The first set of boxplots show that there are many outliers in the individual contributions by political party. A zoom to the interquartile range where middle 50% group of individual contributions reveals the following patterns.
+
+Although Democrats accrued most of the total contributions, their supporters contributed with smaller amounts of money ranging between 10 and 50 dollars. The Republican Party received contributions between 25 and 80 dollars. More interestingly is to see that smaller parties like the Libertarian and the Independent Candidate received half of their contributions in a range of 25 and 100 dollars.
+
+**Geographical location of contributors in California**
+
+```{r, echo= FALSE, message=FALSE, warning=FALSE}
+
+# MAP PLOT
+
+# Importing california cities and coordinates
+california_cities <- read.csv("california_cities.csv")
+california_cities <- tbl_df(california_cities)
+california_cities <- california_cities %>%
+                      select(City, Population, Latitude,Longitude) %>%
+                      filter(Population > 300000)
+
+# load California State map data
+all_states <- map_data('state')
+states <- subset(all_states, region %in% c('california'))
+
+# plot California State with ggplot
+cali_base = ggplot() + 
+            geom_polygon(aes(x=long, y=lat, group = group), 
+                         data = states, 
+                         colour = 'white', 
+                         fill='#e6e6e6')
+
+# Load California State counties
+counties <- map_data('county')
+ca_county  <- subset(counties, region == 'california')
+ca_cities <-  subset(us.cities, country.etc == 'CA')
+
+# add counties, contributors and biggest cities to the map
+cali_base + geom_polygon(aes(x=long, y=lat, group = group),
+                         data = ca_county, 
+                         fill = NA, 
+                         color = "black") +
+            geom_point(aes(x=LNG, y=LAT), 
+                       data= geo_cont, 
+                       alpha = 1/120, 
+                       position = position_jitter(h=0), 
+                       color="orange") +
+            geom_text(aes(Longitude, Latitude, label = City), 
+                      data = california_cities, 
+                      size = 3, 
+                      fontface = "bold", 
+                      colour = "black") +
+            coord_fixed(1.3) + 
+            xlim(c(-125,-114)) + 
+            ylim(c(32,42.5)) +
+            ggtitle("Geographical location of contributors by zip code") +
+            xlab("Longitude") +
+            ylab("Latitude") +
+            theme(panel.background = element_blank())
+```
+
+The map shows that in the State of California contributors are clustered around cities with more than 300,000 inhabitants such as: Los Angeles, San Diego, San Jose, San Francisco, Fresno, Sacramento, Long Beach, Oakland, Bakersfield, Anaheim, Santa Ana, Riverside and Stockton.
+
+**Top ten cities by total contributions** 
+
+```{r, echo= FALSE, message=FALSE, warning=FALSE}
+# CITIES
+
+# Aggregating contributions by city
+contribution_by_city <- fincon %>%
+                        group_by(contbr_city) %>%
+                        summarise(total_contributions = sum(contb_receipt_amt)) %>%
+                        arrange(desc(total_contributions))
+
+# Getting the ten largest cities
+contribution_by_city_top10 <- contribution_by_city %>%
+                              top_n(10)
+
+# Plotting contributions of the top ten biggest cities
+ggplot(aes(x=reorder(contbr_city,total_contributions/1000000), y=total_contributions/1000000), 
+          data= contribution_by_city_top10) + 
+      geom_bar(stat='identity') +
+      coord_flip() +
+      ggtitle("Contributions by City\nTop 10") +
+      xlab("") +
+      ylab("Millions of dollars") +
+      scale_y_continuous(breaks = seq(0,20,1))
+```
+
+The cities in the State of California with more total individual contributions are Los Angeles and San Francisco. In a smaller proportion are San Diego, Palo Alto, Oakland, Beverly Hills, Berkeley, Santa Monica, San Jose and Sacramento.
+
+**Contributions in time**
+
+
+```{r, echo= FALSE, message=FALSE, warning=FALSE}
+# CREATING TIME SERIES
+
+# Formatting date
+fincon$Month_Yr <- format(fincon$contb_receipt_dt, "%Y-%m")
+#fincon$Month_Yr <- as.Date(fincon$Month_Yr,"%Y-%m")
+
+# Aggregating contributions by Month and Year
+cont_month_year <- fincon %>%
+                    group_by(Month_Yr, politicalParty) %>%
+                    summarise(cont_total = sum(contb_receipt_amt)) %>%
+                    arrange(Month_Yr)
+
+```
+
+
+
+```{r, echo= FALSE, message=FALSE, warning=FALSE}
+# TIME SERIES PLOT
+ggplot(aes(x=Month_Yr ,y=cont_total/1000000, colour = politicalParty, group = politicalParty), 
+          data = cont_month_year) + 
+      geom_line(size=1, alpha = 0.85) +
+      labs(fill='Political party') +
+      scale_color_manual(values=politicalPartiesColors) +
+      ggtitle("Total individual contributions by month and political party\n(2013/11 to 2016/12)") +
+      labs(fill='Political party') +
+      xlab("Month") +
+      ylab("Millions of dollars") +
+      theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5))
+```
+
+The time series graph shows that individual contributions for the Presidential Campaign started at the end of 2013 and finished on december 2016. In the State of California since April 2015 the Democrat party continuously raised increasing amounts of money.
+
+
+**Contributions by ethnicity** 
+
+```{r, echo= FALSE, message=FALSE, warning=FALSE}
+e1 <- ggplot(aes(x=ethnicity, y = contb_receipt_amt), 
+             data=fincon) + 
+      geom_boxplot() +
+      ggtitle("Distribution of  individual contributions by ethnicity group") +
+      xlab("") +
+      ylab("Dollars")
+
+e2 <- ggplot(aes(x=ethnicity, y = contb_receipt_amt), 
+             data=fincon) + 
+      geom_boxplot() +
+      ggtitle("Interquartile range of  individual contributions by ethnicity group") +
+      xlab("") +
+      ylab("Dollars") +
+      scale_y_continuous(limits = c(0,50), breaks = seq(0,50,10))
+
+grid.arrange(e1,e2, nrow = 2)
+```
+
+The graphs show that the group with the greatest interquartile range is the white ethnicity group (10-35 dollars). While the others minority groups is more of less equal (10-30 dollars).
+
+
+```{r, echo= FALSE, message=FALSE, warning=FALSE}
+# ETHNICITY PLOT
+
+ggplot(aes(x=reorder(ethnicity,contb_receipt_amt/1000000), y=contb_receipt_amt/1000000, fill = politicalParty),
+          data = fincon) + 
+      geom_bar(stat = 'identity') + 
+      coord_flip() +
+      ggtitle("Total contributions by ethnicity and political party") +
+      xlab("") +
+      ylab("Millions of dollars") +
+      labs(fill='Political party') +
+      scale_fill_manual(values = politicalPartiesColors) +
+      scale_y_continuous(limits = c(0, 130), breaks = seq(0,130,10))
+```
+
+The graph shows that the white ethnicity group is the one that contributed with almost 125 million dollars  to the presidential campaign. Their support was splitted between Democrats (90 million) and Republicans (34 million).
+
+Among the minority groups it is worth to point out that the asians group contributed with almost 10 million dollars, the the hispanic group with 7  million dollars, and the black group with almost 1 million. It is also worth to point out that in general the support was to the Democrat party. 
+
+**Gender Plot** 
+
+```{r, echo= FALSE, message=FALSE, warning=FALSE}
+# GENDER PLOT
+ggplot(aes(x=reorder(gender,contb_receipt_amt/1000000), y=contb_receipt_amt/1000000, fill = politicalParty), 
+            data = fincon) + 
+      geom_bar(stat = 'identity') + 
+      coord_flip() +
+      scale_y_continuous(limits = c(0, 80), breaks = seq(0,80,10)) +
+      ggtitle("Total contributions by gender and political party") +
+      xlab("") +
+      ylab("Millions of dollars") +
+      labs(fill='Political party') +
+      scale_fill_manual(values= politicalPartiesColors)
+```
+
+Total individual contributions come mostly from male (78 million dollars) and then female (70 million dollars). There are 6 million dollars that provide from contributors whose gender was not being able to be predicted.
+
+**Contributions by employer**
+
+```{r, echo= FALSE, message=FALSE, warning=FALSE}
+# Cleaning contributor employer
+fincon$contbr_employer[fincon$contbr_employer == "SELF EMPLOYED"] <- "SELF-EMPLOYED"
+fincon$contbr_employer[fincon$contbr_employer == "SELF"] <- "SELF-EMPLOYED"
+fincon$contbr_employer[fincon$contbr_employer == "INFORMATION REQUESTED"] <- "N/A"
+fincon$contbr_employer[fincon$contbr_employer == "INFORMATION REQUESTED PER BEST EFFORTS"] <- "N/A"
+fincon$contbr_employer[fincon$contbr_employer == "NONE"] <- "N/A"
+fincon$contbr_employer[fincon$contbr_employer == "N/A"] <- "NOT DETERMINED"
+```
+
+
+
+
+```{r, echo= FALSE, message=FALSE, warning=FALSE}
+# Aggregating contributions by employer and getting top 20
+fincon_by_employer <- tbl_df(fincon)
+fincon_by_employer <- fincon_by_employer %>%
+                      select(contbr_employer, contb_receipt_amt) %>%
+                      group_by(contbr_employer) %>%
+                      summarise(total_cont = sum(contb_receipt_amt)) %>%
+                      arrange(desc(total_cont)) %>%
+                      top_n(20)
+
+ggplot(aes(x=reorder(contbr_employer, total_cont/1000000),y = total_cont/1000000), 
+            data = fincon_by_employer) + 
+      geom_bar(stat = 'identity') + 
+      coord_flip() +
+      xlab("") +
+      ylab("Million dollars")
+  
+```
+
+```{r, echo= FALSE, message=FALSE, warning=FALSE}
+# Cleaning employer
+fincon$contbr_employer[fincon$contbr_employer == "INFORMATION REQUESTED"] <- "NOT DETERMINED"
+```
+
+**Contributions by occupation**
+
+The graph shows that most of the individual contributions came from contributors that did not specified an employer, were self employed, retired and not employed.
+
+```{r, echo= FALSE, message=FALSE, warning=FALSE}
+# Aggregating contributions by occupation
+fincon_by_contbr_occupation <- tbl_df(fincon)
+fincon_by_contbr_occupation <- fincon_by_contbr_occupation %>%
+                                select(contbr_occupation, contb_receipt_amt) %>%
+                                group_by(contbr_occupation) %>%
+                                summarise(total_cont = sum(contb_receipt_amt)) %>%
+                                arrange(desc(total_cont)) %>%
+                                top_n(20) 
+
+# Plotting contributions by the top 20 occupations
+ggplot(aes(x=reorder(contbr_occupation, total_cont/1000000),y = total_cont/1000000), 
+            data = fincon_by_contbr_occupation) + 
+        geom_bar(stat = 'identity') + 
+        coord_flip() +
+        xlab("") +
+        ylab("Million dollars")
+
+```
+
+The graph shows that most of the contributions to the Presidential camapaign came from retired people, attorneys, not employed, not determoined, homemakers and CEOs.
+
+**Contributions by Presidential Campaign type**
+
+```{r, echo= FALSE, message=FALSE, warning=FALSE}
+
+#Aggregating contributions by Presidential Campaign type
+fincon_by_election <- tbl_df(fincon)
+
+fincon_by_election <- fincon_by_election %>%
+                      select(election_tp, contb_receipt_amt) %>%
+                      group_by(election_tp) %>%
+                      summarise(total_cont = sum(contb_receipt_amt)) %>%
+                      arrange(desc(total_cont)) %>%
+                      top_n(20) 
+
+ggplot(aes(x=reorder(election_tp, total_cont/1000000),y = total_cont/1000000), 
+          data = fincon_by_election) + 
+      geom_bar(stat = 'identity') + 
+      coord_flip() +
+      xlab("") +
+      ylab("Million dollars")
+```
+
+The graph shows that all the contributions considered in this analysis are from 2016 and that most of the contributions took place in the Presidential and the General Campaign.
+
+## Final Plots and Summary
+
+```{r, echo= FALSE, message=FALSE, warning=FALSE}
+# CONTRIBUTIONS PLOT
+ggplot(aes(x=politicalParty, y=total_cont/1000000, fill = politicalParty), 
+          data = contributions_by_candidates) + 
+      geom_bar(stat = 'identity') +
+      ggtitle("The Democrat Party dominates individual contributions in California\nraising $120 million in 2016 Presidential Campaign") +
+      xlab("") +
+      ylab("Millions of dollars") +
+      scale_y_continuous(limits = c(0,120),breaks = seq(0,120,20)) + 
+      labs(fill="") +
+      scale_fill_manual(values=politicalPartiesColors) +
+      theme(panel.background = element_blank(),
+            axis.title.x=element_blank(),
+            axis.text.x=element_blank(),
+            axis.ticks.x=element_blank(),
+            legend.position="top")
+```
+
+```{r, echo= FALSE, message=FALSE, warning=FALSE}
+# HOW MUCH 
+ggplot(aes(x=politicalParty, y = contb_receipt_amt, fill = politicalParty), 
+          data=fincon) + 
+      geom_boxplot() +
+      ggtitle("Contributors pay between $10 -$100\nto support a Presidential Candidate") +
+      xlab("") +
+      ylab("Dollars") +
+      scale_y_continuous(limits = c(0,120), breaks = seq(0,120,10)) +
+      labs(fill= "") +
+      scale_fill_manual(values=politicalPartiesColors) +
+      theme(panel.background = element_blank(),        
+            axis.title.x=element_blank(),
+            axis.text.x=element_blank(),
+            axis.ticks.x=element_blank(),
+            legend.position="top")
+```
+
+```{r, echo= FALSE, message=FALSE, warning=FALSE}
+# GENDER PLOT
+ggplot(aes(x=reorder(gender,contb_receipt_amt/1000000), y=contb_receipt_amt/1000000, fill = politicalParty), 
+            data = fincon) + 
+      geom_bar(stat = 'identity') + 
+      coord_flip() +
+      scale_y_continuous(limits = c(0, 80), breaks = seq(0,80,10)) +
+      ggtitle("Women in California donated $70 million in the Presidential Campaign\nalmost as much as  $80 million donated by men") +
+      xlab("") +
+      ylab("Millions dollars") +
+      labs(fill='Political party') +
+      scale_fill_manual(values= politicalPartiesColors) +
+      theme(panel.background = element_blank(),
+            legend.position="top")
+```
+
+
+```{r, echo= FALSE, message=FALSE, warning=FALSE}
+# ETHNICITY PLOT
+ggplot(aes(x=reorder(ethnicity,contb_receipt_amt/1000000), y=contb_receipt_amt/1000000, fill = politicalParty),
+          data = fincon) + 
+      geom_bar(stat = 'identity') + 
+      coord_flip() +
+      ggtitle("Whites are the ethnicity group in California that raised $130 million\nminorites raised almost $18 million") +
+      xlab("") +
+      ylab("Million dollars") +
+      labs(fill="") +
+      scale_fill_manual(values = politicalPartiesColors) +
+      scale_y_continuous(limits = c(0, 130), breaks = seq(0,130,10)) +
+      theme(panel.background = element_blank(),
+            legend.position="top")
+```
+
+
+
+
+## Reflections:
+
+The purpose of using Exploratory Data Analysis (EDA) with the 2016 Presidential Campaign contributions was to understand the behaviour of contributors. Considering the huge size of the entire dataset for each State of the United States, this analysis was delimited to the State of California.
+ 
+Data visualization techniques showed that most of the contributions in the State of California significantly supported the Democrat Party in 2016. This result confirms what was already expected. However, interesting results arose when comparing the distribution of contributions by party. It is the Green, Libertarian and Independent parties the ones that receive larger donations. Also, exploring by gender showed there is a small difference of 10 million dollars between men and women total contributions. In this sense women are important contributors to financial campaigns. Furthermore, a relevant discovery is that a State mostly populated by immigrants such as California receives most donations from people of white ethnicity. Bearing the above, the objectives of the EDA were achieved successfully.
+ 
+The most difficult part of the analysis was the creation of the gender and ethnicity variables. Each of these variables were created using bayesian methods and accessing government data through APIs. The predictions while not 100% accurate provide a good degree of knowledge about the characteristics of the contributor.
+ 
+This analysis was successful in addressing the objectives considering socio demographic variables and taking advantage of geographical information as well. Further patterns can be explored using more sophisticated techniques such as machine learning.
+ 
+This analysis will be very useful if it were conducted in the rest of the data. Also, it would be good to compare this years contributions vs previous ones. These with the purpose of understanding if there are changes in patterns over time and election periods. Moreover, the disaggregation of the data is good enough to conduct predictive models for future elections.

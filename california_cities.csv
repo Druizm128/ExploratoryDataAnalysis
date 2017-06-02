@@ -1,0 +1,101 @@
+Rank,City,Population,County,Latitude,Longitude
+1,Los Angeles,3971883,Los Angeles,34.05223,-118.24368
+2,San Diego,1394928,San Diego,32.71573,-117.16108
+3,San Jose,1026908,Santa Clara,37.3382,-121.8863
+4,San Francisco,864816,San Francisco,37.77492,-122.41941
+5,Fresno,520052,Fresno,36.74684,-119.77258
+6,Sacramento,490712,Sacramento,38.58157,-121.49439
+7,Long Beach,474140,Los Angeles,33.77005,-118.19373
+8,Oakland,419267,Alameda,37.80436,-122.27111
+9,Bakersfield,373640,Kern,35.37329,-119.01871
+10,Anaheim,350742,Orange,33.83529,-117.9145
+11,Santa Ana,334909,Orange,33.74557,-117.86783
+12,Riverside,322424,Riverside,33.95334,-117.39615
+13,Stockton,305658,San Joaquin,37.9577,-121.29077
+14,Chula Vista,265757,San Diego,32.64005,-117.08419
+15,Irvine,256927,Orange,33.68394,-117.79469
+16,Fremont,232206,Alameda,37.54826,-121.98857
+17,San Bernardino,216108,San Bernardino,34.10834,-117.28976
+18,Modesto,211266,Stanislaus,37.63909,-120.99687
+19,Fontana,207460,San Bernardino,34.09223,-117.43504
+20,Oxnard,207254,Ventura,34.1975,-119.17705
+21,Moreno Valley,204198,Riverside,33.94246,-117.22967
+22,Huntington Beach,201899,Orange,33.66029,-117.99922
+23,Glendale,201020,Los Angeles,34.1425,-118.25507
+24,Santa Clarita,182371,Los Angeles,34.39166,-118.54258
+25,Oceanside,175691,San Diego,33.19586,-117.37948
+26,Garden Grove,175393,Orange,33.7739,-117.94144
+27,Rancho Cucamonga,175236,San Bernardino,34.10639,-117.5931
+28,Santa Rosa,175000,Sonoma,38.44042,-122.71405
+29,Ontario,171214,San Bernardino,34.06334,-117.65088
+30,Elk Grove,166913,Sacramento,38.40879,-121.37161
+31,Corona,164226,Riverside,33.87529,-117.56643
+32,Lancaster,161103,Los Angeles,34.68678,-118.15416
+33,Palmdale,158351,Los Angeles,34.57943,-118.11646
+34,Hayward,158289,Alameda,37.66882,-122.08079
+35,Salinas,157380,Monterey,36.67773,-121.6555
+36,Pomona,153266,Los Angeles,34.0551,-117.74999
+37,Sunnyvale,151754,Santa Clara,37.36883,-122.03634
+38,Escondido,151451,San Diego,33.1192,-117.08642
+39,Torrance,148475,Los Angeles,33.83584,-118.34062
+40,Pasadena,142250,Los Angeles,34.14778,-118.14451
+41,Orange,140992,Orange,33.78779,-117.85311
+42,Fullerton,140847,Orange,33.87035,-117.92429
+43,Roseville,130269,Placer,38.75212,-121.288
+44,Visalia,130104,Tulare,36.33022,-119.29205
+45,Thousand Oaks,129339,Ventura,34.17056,-118.83759
+46,Simi Valley,126788,Ventura,34.26944,-118.78148
+47,Concord,128667,Contra Costa,37.97797,-122.03107
+48,Santa Clara,126215,Santa Clara,37.3541,-121.95523
+49,Victorville,122225,San Bernardino,34.53621,-117.29276
+50,Vallejo,121253,Solano,38.10408,-122.25663
+51,Berkeley,120972,Alameda,37.87159,-122.27274
+52,El Monte,116732,Los Angeles,34.06862,-118.02756
+53,Downey,114219,Los Angeles,33.9401,-118.13315
+54,Carlsbad,113453,San Diego,33.15809,-117.35059
+55,Costa Mesa,113204,Orange,33.64113,-117.91866
+56,Fairfield,112970,Solano,38.24935,-122.03996
+57,Temecula,112011,Riverside,33.49363,-117.14836
+58,Inglewood,111666,Los Angeles,33.96168,-118.35313
+59,Antioch,110542,Contra Costa,38.00492,-121.80578
+60,Murrieta,109830,Riverside,33.55391,-117.21392
+61,Richmond,109708,Contra Costa,37.93575,-122.34774
+62,Ventura,109708,Ventura,34.27464,-119.22903
+63,West Covina,108484,Los Angeles,34.06862,-117.93895
+64,Norwalk,107140,Los Angeles,33.90223,-118.08173
+65,Daly City,106562,San Mateo,37.68792,-122.4702
+66,Burbank,105319,Los Angeles,34.18083,-118.30896
+67,Santa Maria,105093,Santa Barbara,34.95303,-120.43571
+68,Clovis,104180,Fresno,36.82522,-119.70291
+69,El Cajon,103679,San Diego,32.79477,-116.96252
+70,San Mateo,103536,San Mateo,37.56299,-122.32552
+71,Rialto,103132,San Bernardino,34.1064,-117.37032
+72,Vista,100890,San Diego,33.20003,-117.24253
+73,Jurupa Valley,100314,Riverside,33.99719,-117.48548
+74,Compton,98462,Los Angeles,33.89584,-118.22007
+75,Mission Viejo,97156,Orange,33.60002,-117.67199
+76,Vacaville,96803,Solano,38.35657,-121.98774
+77,South Gate,96401,Los Angeles,33.95473,-118.21201
+78,Hesperia,93295,San Bernardino,34.42638,-117.30087
+79,Carson,93281,Los Angeles,33.83167,-118.28169
+80,Santa Monica,93220,Los Angeles,34.01945,-118.49119
+81,San Marcos,92931,San Diego,33.14337,-117.1661
+82,Westminster,92114,Orange,33.75134,-117.99399
+83,Santa Barbara,91842,Santa Barbara,34.42083,-119.69819
+84,Redding,91582,Shasta,40.58653,-122.39167
+85,San Leandro,90712,Alameda,37.72492,-122.15607
+86,Chico,90316,Butte,39.72849,-121.83747
+87,Hawthorne,88451,Los Angeles,33.9164,-118.35257
+88,Livermore,88126,Alameda,37.68187,-121.768
+89,Indio,87533,Riverside,33.72057,-116.21556
+90,Whittier,87438,Los Angeles,33.97917,-118.03284
+91,Menifee,87174,Riverside,33.69714,-117.18529
+92,Newport Beach,87127,Orange,33.61891,-117.92894
+93,Tracy,87075,San Joaquin,37.73965,-121.42522
+94,Citrus Heights,87056,Sacramento,38.70712,-121.28106
+95,Chino,85595,San Bernardino,34.01223,-117.68894
+96,Alhambra,85551,Los Angeles,34.09528,-118.12701
+97,Redwood City,85288,San Mateo,37.48521,-122.23635
+98,Hemet,83861,Riverside,33.74752,-116.97196
+99,Buena Park,83270,Orange,33.86751,-117.9981
+100,Lake Forest,82492,,33.64696,-117.68921
