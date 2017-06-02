@@ -1,9 +1,9 @@
 
-# Using Exploratory Data Analysis techniques in the 2016 USA Presidential Campaign Finance in the State of California
+# Using Exploratory Data Analysis Techniques in the 2016 USA Presidential Campaign Finance in the State of California
 
 ## Abstract
 
-The project usess exploratoriy data analysis techniques (EDA) to explore the 2016 Presidential Campaign Finance contributions dataset. The analysis is restricted to the State of California. The purpose of the EDA is to understand the contributors behaviour during presidential campaigns. The analysis was conducted in R using the ggplot2 library. 
+The project uses exploratory data analysis techniques (EDA) to explore the 2016 Presidential Campaign Finance contributions dataset. The analysis is restricted to the State of California. The purpose of the EDA is to understand the contributors behaviour during presidential campaigns. The analysis was conducted in R using the ggplot2 library. 
 
 ## The repository contains the following files:
 
