@@ -1,11 +1,13 @@
 ---
 title: "2016 USA Presidential Campaign Finance in the State of California"
 author: "Dante Ruiz"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE)
 
 # Importing libraries
 library(ggplot2)
@@ -17,6 +19,7 @@ library(gridExtra)
 ```
 
 ## Introduction:
+	
 This project uses exploratory data techniques to understand the behaviour of American contributors to the 2016 Presidential Campaign in the State of California. The purpose of the project is to use different tools in R to aquire, clean, explore and analyze a dataset, and to present three data visualizations that can display insights about the information.
 
 The structure of this document is the following:
@@ -38,7 +41,7 @@ The structure of this document is the following:
 
 The dataset contains a universe of all individual contributions reported on Form 3P Line 17A, refunds to individuals reported on Form 3P Line 28A and transfers from authorized committees reported on Form 3P Line 18 for the 2016 Presidential Campaign in the State of California.
 
-The data can be downloaded from the following website http://fec.gov/disclosurep/pnational.do . Furthermore, the dataset for the State of California contains 19 fields and 1,304,346 entries.
+The data can be downloaded from the following [website](http://fec.gov/disclosurep/pnational.do) . Furthermore, the dataset for the State of California contains 19 fields and 1,304,346 entries.
 
 The fields comprised in the dataset are:
 
@@ -414,18 +417,18 @@ g1 <- ggplot(aes(x=contb_receipt_amt), data = fincon) +
 
 
 g2 <- ggplot(aes(x=contb_receipt_amt), data = fincon) + 
-            geom_histogram(binwidth = 10, alpha = 0.8) +
+            geom_histogram(binwidth = 10, alpha = 0.8, boundary = 0) +
             ggtitle("Distribution of individual contributions between 0 and 300 dollars") +
             xlab("Dollars") +
             ylab("Count") +
-            scale_x_continuous(limits = c(0,300), breaks = seq(0,300,10))
+            scale_x_continuous(limits = c(0,300), breaks = seq(0,300,20))
 
 grid.arrange(g1,g2, nrow = 2)
 ```
 
 In the first graph it can be seen that the individual contributions to the Presidential Campaign do not show a normal distribution behaviour, also that the distribution is skewed to the left. 
 
-In the second graph, a zoom was made to the contributions between 0 and 300 dollars, revealing that most of the contribution transactions to the campaign range between 5 and 55 dollars per contributor. Just to give some context to those amounts consider that the minimum salary in the State of California is $10/hour.
+In the second graph, a zoom was made to the contributions between 0 and 300 dollars, revealing that most of the contribution transactions to the campaign range between 0 and 50 dollars per contributor. Just to give some context to those amounts consider that the minimum salary in the State of California is $10/hour.
 
 **Total contributions by political party**
 
@@ -445,7 +448,7 @@ ggplot(aes(x=politicalParty, y=total_cont/1000000,
       xlab("") +
       ylab("Millions of dollars") +
       scale_y_continuous(breaks = seq(0,120,10)) + 
-      labs(fill='Political party') +
+      guides(fill=FALSE) +
       scale_fill_manual(values=politicalPartiesColors)
 ```
 
@@ -466,7 +469,7 @@ ggplot(aes(x=reorder(cand_nm,total_cont/1000000),
   ggtitle("Total contributions by candidate") +
   xlab("") +
   ylab("Millions of dollars") +
-  labs(fill='Political party') +
+  guides(fill=FALSE) +
   scale_fill_manual(values=politicalPartiesColors)
 ```
 
@@ -483,7 +486,7 @@ b1 <- ggplot(aes(x=politicalParty, y = contb_receipt_amt, fill = politicalParty)
       ggtitle("Distribution of  individual contributions by political party") +
       xlab("") +
       ylab("Dollars") +
-      labs(fill='Political party') +
+      guides(fill=FALSE) +
       scale_fill_manual(values=c("#3399ff","#ff0000", "#009900","#ffcc00","#cc00ff"))
 
 b2 <- ggplot(aes(x=politicalParty, y = contb_receipt_amt, fill = politicalParty), 
@@ -493,7 +496,7 @@ b2 <- ggplot(aes(x=politicalParty, y = contb_receipt_amt, fill = politicalParty)
       xlab("") +
       ylab("Dollars") +
       scale_y_continuous(limits = c(0,120), breaks = seq(0,120,10)) +
-      labs(fill='Political party') +
+      guides(fill=FALSE) +
       scale_fill_manual(values=politicalPartiesColors)
 
 grid.arrange(b1,b2, nrow = 2)
@@ -793,6 +796,8 @@ ggplot(aes(x=politicalParty, y=total_cont/1000000, fill = politicalParty),
             legend.position="top")
 ```
 
+In the State of California during the Presidential Election of 2016, the Democrat party was able to raise almost $120 million in contributions, almost three times more what the Republican Party raised.
+
 ```{r, echo= FALSE, message=FALSE, warning=FALSE}
 # HOW MUCH 
 ggplot(aes(x=politicalParty, y = contb_receipt_amt, fill = politicalParty), 
@@ -811,6 +816,8 @@ ggplot(aes(x=politicalParty, y = contb_receipt_amt, fill = politicalParty),
             legend.position="top")
 ```
 
+Surprisingly, although the Democrats raised the largest amount of contributions, it shows the lowest median contribution. The parties with the highest median contribution are the Green, Libertarian and Independent.
+
 ```{r, echo= FALSE, message=FALSE, warning=FALSE}
 # GENDER PLOT
 ggplot(aes(x=reorder(gender,contb_receipt_amt/1000000), y=contb_receipt_amt/1000000, fill = politicalParty), 
@@ -828,6 +835,8 @@ ggplot(aes(x=reorder(gender,contb_receipt_amt/1000000), y=contb_receipt_amt/1000
 ```
 
 
+Women are an important source of contributions, in the Presidential Campaign they gave 70 million dls. This is just 10 million dls less than men. 
+
 ```{r, echo= FALSE, message=FALSE, warning=FALSE}
 # ETHNICITY PLOT
 ggplot(aes(x=reorder(ethnicity,contb_receipt_amt/1000000), y=contb_receipt_amt/1000000, fill = politicalParty),
@@ -844,7 +853,8 @@ ggplot(aes(x=reorder(ethnicity,contb_receipt_amt/1000000), y=contb_receipt_amt/1
             legend.position="top")
 ```
 
-
+Even if the State of California has one of the largest immigrant population, people of white ethnicity are the largest contributors. From the minorities, it is Asians that gave the most 
+contributions and then hispanic. There are not differences in voting preference by ethnicity in the State.
 
 
 ## Reflections:
