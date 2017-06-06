@@ -5,8 +5,8 @@ output:
   html_document: default
 ---
 
-```{r setup, include=FALSE, echo=FALSE}
-knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE)
+```{r, echo=FALSE, include=FALSE, results="hide"}
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE)
 
 # Importing libraries
 library(ggplot2)
@@ -63,7 +63,7 @@ The fields comprised in the dataset are:
 * TRANSACTION ID: A unique identifier permanently associated with each itemization or transaction appearing in an FEC electronic file.
 * ELECTION TYPE / PRIMARY-GENERAL INDICATOR: This code indicates the election for which the contribution was made. EYYYY (election plus election year)
 
-```{r, message=FALSE, warning=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # Importing California dataset
 fincon <- read.csv('P00000001-CA.csv', skip=1, header = FALSE)
 # Printing dimensions of dataset
@@ -84,7 +84,7 @@ After importing the data that came in a csv format, the first step to clean the 
 
 The first step in the process is to rename the columns of the dataset. Later, the last empty columns will be dropped from the dataset.
 
-```{r, message=FALSE, warning=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # Setting the names of the columns
 fieldNames <- c('cmte_id','cand_id','cand_nm','contbr_nm',
                 'contbr_city','contbr_st','contbr_zip',
@@ -101,7 +101,7 @@ Exploring data types:
 
 A quick display to the structure of the data shows the variables name and type. With the exception of contb_receipt_amt, R interpreted the fields as factors. This fact should be kept in mind as further type transformations will have to be required.
 
-```{r, message=FALSE, warning=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # Print structure of the dataset
 str(fincon)
 ```
@@ -110,7 +110,7 @@ str(fincon)
 
 An analysis to find out missing values (NAs) in each columns was run indicating as a result that no NAs were found in the dataset, therefore the dataset is ready to be used for exploratory analysis.
 
-```{r, message=FALSE, warning=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # Print NAs per field
 sapply(fincon, function(x) sum(is.na(x)))
 ```
@@ -125,7 +125,7 @@ As previously shown most of the fields were imported as factors, so the next ste
 
 In general all types were change to character, except the dates that were formatted as this, and the amounts contributed as numeric type.
 
-```{r, message=FALSE, warning=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # Changing data types
 
 #cand_nm
@@ -154,7 +154,7 @@ fincon$election_tp <- as.character(fincon$election_tp)
 
 A statistical summary at the variables shows that the CONTRIBUTION RECEIPT AMOUNT (contb_receipt_am) takes negative values and very extreme positive values in comparison to the median.
 
-```{r, message=FALSE, warning=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 ### Summarizing all variables
 summary(fincon)
 ```
@@ -165,7 +165,7 @@ summary(fincon)
 For this project the variable of interest is the individual contributions for the Presidential Campaign that are capped to 2,700 dollars (See http://www.fec.gov/pages/brochures/citizens.shtml#how_much). In this sense, the "CONTRIBUTION RECEIPT AMOUNT" field is filtered to those values between 0 and 2,700. Also contributions for 2020 elections were removed and also those contributions that were not possible to associate to an election period.
 
 
-```{r, message=FALSE, warning=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #Subsetting dataframe
 
 fincon <- tbl_df(fincon)
@@ -189,7 +189,7 @@ In order to achieve the objectives of this project, four additional variables ha
 
 The political party field can be created by classifying the candidate names into Republicans,  Democrats, Green, Libertarian and Independent parties.
 
-```{r, message=FALSE, warning=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # Printing unique presidential candidates
 unique(fincon$cand_nm)
 ```
@@ -228,7 +228,7 @@ Others:
 * Johnson, Gary (Libertarian Party)
 
 
-```{r, message=FALSE, warning=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # CREATING POLITICAL PARTY VARIABLE
 
 
@@ -264,7 +264,7 @@ politicalPartiesColors <- c("#153670", # Democrats (Blue)
 
 As expected most of the contributions in the state of California were for the Democrat (84%) and Republican (15%) candidates. The rest of the contributions to the Green and Libertarian parties and to the Independent candidate represent 1%. 
 
-```{r, message=FALSE, warning=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # Counts of contributors by political parties
 print("Contributors by political party")
 table(fincon$politicalParty)
@@ -277,7 +277,7 @@ table(fincon$politicalParty )/ length(fincon$politicalParty)
 
 The ethnicity of each contributor was derived using a Bayesian Prediction of Racial Category using the contributor surname and geolocation (See https://github.com/kosukeimai/wru). The R library used for this purpose is "wru" (See https://cran.r-project.org/web/packages/wru/wru.pdf). The code retrieves information from the US CENSUS to predict the following ethnicities in the US: white, black, hispanic and asian. It is worth to point out that the contributor name was split into name and surname to be able to compute the probabilities.
 
-```{r, message=FALSE, warning=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # CREATING ETHNICITY VARIABLE
 
 # Separating contributor name into first and last name.
@@ -319,7 +319,7 @@ fincon$ethnicity <- ifelse(fincon$pred.whi >= .6,"white",
 
 The new ethnicity field classified most of the contributors in the dataset as white (81%). In a smaller proportion hispanic (7%), asian (4%) and black (0.4%) contributors were classified. It is worth to point out that those contributors with probabilities less than 0.6 in any ethnicity were classified as "not determined" (6.7%).
 
-```{r, message=FALSE, warning=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # Counts of contributors by ethnicity group
 print("Contributors by ethnicity group")
 table(fincon$ethnicity)
@@ -333,7 +333,7 @@ table(fincon$ethnicity) / length(fincon$ethnicity)
 
 The gender variable was created by predicting gender from first name with information of the U.S. Social Security Administration. The library used for this purpose is "gender" (See https://github.com/ropensci/gender and https://cran.r-project.org/web/packages/gender/index.html)
 
-```{r, message=FALSE, warning=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # CREATING GENDER VARIABLE
 
 library(gender)
@@ -361,7 +361,7 @@ fincon$gender[is.na(fincon$gender)] <- "not determined"
 
 The contributors gender was classified as mostly female (52%), male (45%) and "not determined" (4%).
 
-```{r, message=FALSE, warning=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # Counts of contributors by gender group
 print("Contributors by gender group")
 table(fincon$gender)
@@ -377,7 +377,7 @@ To get the geographical coordinates (latitude and longitud), the zip code of the
 
 It is worth to point out that the zip code provided in the dataset was cleaned to five numeric characters.
 
-```{r message=FALSE, warning=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # CREATING COORDINATES
 usZipCoord <- read.table("2016_Gaz_zcta_national.txt", 
                          sep = "\t",  
@@ -405,7 +405,7 @@ This section explores the dataset variables using univariate and bivariate visua
 
 **Distribution of individual contributions**
 
-```{r, echo= FALSE, message=FALSE, warning=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # DISTRIBUTION OF CONTRIBUTIONS
 
 g1 <- ggplot(aes(x=contb_receipt_amt), data = fincon) + 
@@ -819,7 +819,7 @@ Surprisingly, although the Democrats raised the largest amount of contributions,
 
 ```{r, echo= FALSE, message=FALSE, warning=FALSE}
 # GENDER PLOT
-ggplot(aes(x=reorder(gender,contb_receipt_amt/1000000), y=contb_receipt_amt/1000000, fill = politicalParty), 
+g1 <- ggplot(aes(x=reorder(gender,contb_receipt_amt/1000000), y=contb_receipt_amt/1000000, fill = politicalParty), 
             data = fincon) + 
       geom_bar(stat = 'identity') + 
       coord_flip() +
@@ -831,14 +831,9 @@ ggplot(aes(x=reorder(gender,contb_receipt_amt/1000000), y=contb_receipt_amt/1000
       scale_fill_manual(values= politicalPartiesColors) +
       theme(panel.background = element_blank(),
             legend.position="top")
-```
 
-
-Women are an important source of contributions, in the Presidential Campaign they gave 70 million dls. This is just 10 million dls less than men. 
-
-```{r, echo= FALSE, message=FALSE, warning=FALSE}
 # ETHNICITY PLOT
-ggplot(aes(x=reorder(ethnicity,contb_receipt_amt/1000000), y=contb_receipt_amt/1000000, fill = politicalParty),
+g2 <- ggplot(aes(x=reorder(ethnicity,contb_receipt_amt/1000000), y=contb_receipt_amt/1000000, fill = politicalParty),
           data = fincon) + 
       geom_bar(stat = 'identity') + 
       coord_flip() +
@@ -850,10 +845,13 @@ ggplot(aes(x=reorder(ethnicity,contb_receipt_amt/1000000), y=contb_receipt_amt/1
       scale_y_continuous(limits = c(0, 130), breaks = seq(0,130,10)) +
       theme(panel.background = element_blank(),
             legend.position="top")
+
+grid.arrange(g1,g2, ncol = 2)
 ```
 
-Even if the State of California has one of the largest immigrant population, people of white ethnicity are the largest contributors. From the minorities, it is Asians that gave the most 
-contributions and then hispanic. There are not differences in voting preference by ethnicity in the State.
+The previous graph shows contributions to all parties broken by gender and ethnicity. It can be seen that women are an important actors in financing the Presidential Campaign. In 2016 they gave 70 million dls, just 10 million dls less than men. 
+
+Furthermore, even that the State of California has one of the largest immigrant population, people of white ethnicity are the largest contributors. From the minorities, it is Asians that gave the most contributions to the Presidential Campaing followed closely by hispanic. Moreover, there are not differences in voting preference by ethnicity and gender in the State.
 
 
 ## Reflections:
