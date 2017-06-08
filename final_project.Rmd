@@ -6,7 +6,7 @@ output:
 ---
 
 ```{r, echo=FALSE, include=FALSE, results="hide"}
-knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE)
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, results="hide")
 
 # Importing libraries
 library(ggplot2)
@@ -824,7 +824,7 @@ g1 <- ggplot(aes(x=reorder(gender,contb_receipt_amt/1000000), y=contb_receipt_am
       geom_bar(stat = 'identity') + 
       coord_flip() +
       scale_y_continuous(limits = c(0, 80), breaks = seq(0,80,10)) +
-      ggtitle("Women in California donated $70 million in the Presidential Campaign\nalmost as much as  $80 million donated by men") +
+      ggtitle("Women in California donated\nalmost as much as men") +
       xlab("") +
       ylab("Millions dollars") +
       labs(fill='Political party') +
@@ -837,7 +837,7 @@ g2 <- ggplot(aes(x=reorder(ethnicity,contb_receipt_amt/1000000), y=contb_receipt
           data = fincon) + 
       geom_bar(stat = 'identity') + 
       coord_flip() +
-      ggtitle("Whites are the ethnicity group in California that raised $130 million\nminorites raised almost $18 million") +
+      ggtitle("White people donated\nthe most in California") +
       xlab("") +
       ylab("Million dollars") +
       labs(fill="") +
